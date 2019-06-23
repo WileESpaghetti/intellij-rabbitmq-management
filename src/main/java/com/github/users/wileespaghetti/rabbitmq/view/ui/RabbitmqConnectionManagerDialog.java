@@ -1,34 +1,35 @@
 package com.github.users.wileespaghetti.rabbitmq.view.ui;
 
-import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.options.SettingsEditorConfigurable;
+import com.intellij.openapi.options.ex.SingleConfigurableEditor;
+import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
-
 // com.intellij.database.view.ui.DataSourceManagerDialog
-public class RabbitmqConnectionManagerDialog extends DialogWrapper {
-    public RabbitmqConnectionManagerDialog() {
-        super(true);
-        init();
-        setTitle("RabbitMQ");
+public class RabbitmqConnectionManagerDialog extends SingleConfigurableEditor {
+    private RabbitmqConnectionManagerDialog(@Nullable Project project, @NotNull RabbitmqConfigEditorImpl.ManagementApiSettings settings) {
+        super(project, new MyConfigurable(settings));
     }
 
-    @Nullable
-    @Override
-    protected JComponent createCenterPanel() {
-        JPanel dialogPanel = new JPanel(new BorderLayout());
+    public static void showDialog(@NotNull Project project) {
+        RabbitmqConfigEditorImpl.ManagementApiSettings apiSettings = new RabbitmqConfigEditorImpl.ManagementApiSettings();
 
-        JLabel label = new JLabel("Hello World");
-        label.setPreferredSize(new Dimension(100, 100));
-        dialogPanel.add(label, BorderLayout.CENTER);
-
-        return dialogPanel;
-    }
-
-    public static void showDialog() {
-        RabbitmqConnectionManagerDialog dialog = new RabbitmqConnectionManagerDialog();
+        RabbitmqConnectionManagerDialog dialog = new RabbitmqConnectionManagerDialog(project, apiSettings);
         dialog.show();
     }
 
+    // com.intellij.database.view.ui.DataSourceManagerDialog$MyConfigurable
+    private static class MyConfigurable extends SettingsEditorConfigurable<RabbitmqConfigEditorImpl.ManagementApiSettings> {
+        public MyConfigurable(@NotNull RabbitmqConfigEditorImpl.ManagementApiSettings settings) {
+            super(new RabbitmqConfigEditorImpl<>(), settings);
+        }
+
+        @Nls(capitalization = Nls.Capitalization.Title)
+        @Override
+        public String getDisplayName() {
+            return "RabbitMQ";
+        }
+    }
 }
