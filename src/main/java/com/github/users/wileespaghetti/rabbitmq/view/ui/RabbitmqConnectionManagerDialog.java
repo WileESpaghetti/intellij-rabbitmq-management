@@ -1,6 +1,8 @@
 package com.github.users.wileespaghetti.rabbitmq.view.ui;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -26,7 +28,7 @@ public class RabbitmqConnectionManagerDialog extends DialogWrapper {
         return dialogPanel;
     }
 
-    public static void showDialog() {
+    public static void showDialog(@NotNull Project project) {
         RabbitmqConnectionManagerDialog dialog = new RabbitmqConnectionManagerDialog();
         dialog.show();
     }
