@@ -20,5 +20,10 @@
 
     <actions>
         <!-- Add your actions here -->
+        <action id="Rabbitmq.OpenConfiguration"
+                class="com.github.users.wileespaghetti.rabbitmq.actions.testing.OpenRabbitmqConfigurationDialog"
+                text="RabbitMQ Configuration" description="Opens the RabbitMQ Configuration Dialog">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
     </actions>
 </idea-plugin>
