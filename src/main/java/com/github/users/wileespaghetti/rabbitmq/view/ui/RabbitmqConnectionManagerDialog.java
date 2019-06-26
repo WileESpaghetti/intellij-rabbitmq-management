@@ -1,5 +1,6 @@
 package com.github.users.wileespaghetti.rabbitmq.view.ui;
 
+import com.github.users.wileespaghetti.rabbitmq.view.ui.RabbitmqConfigEditorImpl.ManagementApiSettings;
 import com.intellij.openapi.options.SettingsEditorConfigurable;
 import com.intellij.openapi.options.ex.SingleConfigurableEditor;
 import com.intellij.openapi.project.Project;
@@ -9,20 +10,20 @@ import org.jetbrains.annotations.Nullable;
 
 // com.intellij.database.view.ui.DataSourceManagerDialog
 public class RabbitmqConnectionManagerDialog extends SingleConfigurableEditor {
-    private RabbitmqConnectionManagerDialog(@Nullable Project project, @NotNull RabbitmqConfigEditorImpl.ManagementApiSettings settings) {
+    private RabbitmqConnectionManagerDialog(@Nullable Project project, @NotNull ManagementApiSettings settings) {
         super(project, new MyConfigurable(settings));
     }
 
     public static void showDialog(@NotNull Project project) {
-        RabbitmqConfigEditorImpl.ManagementApiSettings apiSettings = new RabbitmqConfigEditorImpl.ManagementApiSettings();
+        ManagementApiSettings apiSettings = new ManagementApiSettings();
 
         RabbitmqConnectionManagerDialog dialog = new RabbitmqConnectionManagerDialog(project, apiSettings);
         dialog.show();
     }
 
     // com.intellij.database.view.ui.DataSourceManagerDialog$MyConfigurable
-    private static class MyConfigurable extends SettingsEditorConfigurable<RabbitmqConfigEditorImpl.ManagementApiSettings> {
-        public MyConfigurable(@NotNull RabbitmqConfigEditorImpl.ManagementApiSettings settings) {
+    private static class MyConfigurable extends SettingsEditorConfigurable<ManagementApiSettings> {
+        public MyConfigurable(@NotNull ManagementApiSettings settings) {
             super(new RabbitmqConfigEditorImpl<>(), settings);
         }
 
