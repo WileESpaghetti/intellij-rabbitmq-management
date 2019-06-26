@@ -1,7 +1,5 @@
 package com.github.users.wileespaghetti.rabbitmq.view.ui;
 
-import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.impl.ActionButton;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.ui.OnePixelSplitter;
@@ -18,6 +16,7 @@ import java.awt.*;
 public class RabbitmqConfigEditorImpl<Settings> extends SettingsEditor<Settings> {
     private JPanel myRootPanel;
     private JPanel myRightPanel;
+    private ConnectionsSidePanel mySidePanel;
 
     RabbitmqConfigEditorImpl() {
         super();
@@ -58,13 +57,11 @@ public class RabbitmqConfigEditorImpl<Settings> extends SettingsEditor<Settings>
     }
 
     private JComponent createLeftPanel() {
-        JPanel dialogPanel = new JPanel(new BorderLayout());
+        this.mySidePanel = new ConnectionsSidePanel();
 
-        JLabel label = new JLabel("Hello World");
-        label.setPreferredSize(new Dimension(100, 100));
-        dialogPanel.add(label, BorderLayout.CENTER);
-
-        return dialogPanel;
+        JPanel leftPanel = new JPanel(new BorderLayout());
+        leftPanel.add(this.mySidePanel.getComponent(), "Center");
+        return leftPanel;
     }
 
     @Override
