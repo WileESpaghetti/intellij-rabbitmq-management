@@ -10,6 +10,12 @@ import org.jetbrains.annotations.Nullable;
 
 // com.intellij.database.view.ui.DataSourceManagerDialog
 public class RabbitmqConnectionManagerDialog extends SingleConfigurableEditor {
+    @NotNull
+    @Override
+    protected DialogStyle getStyle() {
+        return DialogStyle.COMPACT;
+    }
+
     private RabbitmqConnectionManagerDialog(@Nullable Project project, @NotNull ManagementApiSettings settings) {
         super(project, new MyConfigurable(settings));
     }
