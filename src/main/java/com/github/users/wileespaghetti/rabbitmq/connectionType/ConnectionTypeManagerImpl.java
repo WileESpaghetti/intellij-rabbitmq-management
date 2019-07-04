@@ -39,6 +39,17 @@ public class ConnectionTypeManagerImpl extends ConnectionTypeManager {
         return this.myConnectionTypes.get(StringUtil.notNullize(id));
     }
 
+    @NotNull
+    @Override
+    public ConnectionType createConnectionType(String id, String name) {
+        String newId = id;
+        if (this.getConnectionType(id) != null) {
+            newId = null;
+        }
+
+        return new ConnectionTypeImpl(newId, name);
+    }
+
     @Override
     public void updateConnectionType(@NotNull ConnectionType connectionType) {
         if (!this.myConnectionTypes.containsKey(connectionType.getId())) {

@@ -15,6 +15,9 @@ public abstract class ConnectionTypeManager {
 
     public abstract ConnectionType getConnectionType(String id);
 
+    @NotNull
+    public abstract ConnectionType createConnectionType(String id, String name);
+
     public abstract void updateConnectionType(@NotNull ConnectionType connectionType);
 
     public abstract void removeConnectionType(@NotNull ConnectionType connectionType);
