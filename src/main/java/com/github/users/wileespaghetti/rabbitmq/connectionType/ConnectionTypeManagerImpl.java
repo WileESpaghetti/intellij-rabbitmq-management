@@ -5,6 +5,8 @@ import com.intellij.util.EventDispatcher;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 public class ConnectionTypeManagerImpl extends ConnectionTypeManager {
@@ -22,6 +24,11 @@ public class ConnectionTypeManagerImpl extends ConnectionTypeManager {
         this.getDispatcher().getMulticaster().connectionTypeAdded(connectionType);
 
         return connectionType;
+    }
+
+    @Override
+    public Collection<ConnectionType> getConnectionTypes() {
+        return Collections.unmodifiableCollection(this.myConnectionTypes.values());
     }
 
     @Override
