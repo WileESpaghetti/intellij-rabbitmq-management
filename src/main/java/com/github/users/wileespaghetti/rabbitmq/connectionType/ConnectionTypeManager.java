@@ -13,6 +13,8 @@ public abstract class ConnectionTypeManager {
 
     public abstract Collection<ConnectionType> getConnectionTypes();
 
+    public abstract ConnectionType getConnectionType(String id);
+
     public abstract void updateConnectionType(@NotNull ConnectionType connectionType);
 
     public abstract void removeConnectionType(@NotNull ConnectionType connectionType);

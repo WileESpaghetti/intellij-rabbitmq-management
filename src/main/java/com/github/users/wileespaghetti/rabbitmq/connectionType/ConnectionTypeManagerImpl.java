@@ -1,6 +1,7 @@
 package com.github.users.wileespaghetti.rabbitmq.connectionType;
 
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.EventDispatcher;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
@@ -12,9 +13,11 @@ import java.util.Map;
 public class ConnectionTypeManagerImpl extends ConnectionTypeManager {
     private final EventDispatcher<ConnectionTypeListener> myDispatcher;
     private final Map<String, ConnectionType> myConnectionTypes;
+    private final Map<String, ConnectionTypeImpl> myPredefinedConnectionTypes;
 
     public ConnectionTypeManagerImpl() {
         this.myConnectionTypes = ContainerUtil.newLinkedHashMap();
+        this.myPredefinedConnectionTypes = ContainerUtil.newLinkedHashMap();
         this.myDispatcher = EventDispatcher.create(ConnectionTypeListener.class);
     }
 
@@ -29,6 +32,11 @@ public class ConnectionTypeManagerImpl extends ConnectionTypeManager {
     @Override
     public Collection<ConnectionType> getConnectionTypes() {
         return Collections.unmodifiableCollection(this.myConnectionTypes.values());
+    }
+
+    @Override
+    public ConnectionType getConnectionType(String id) {
+        return this.myConnectionTypes.get(StringUtil.notNullize(id));
     }
 
     @Override
