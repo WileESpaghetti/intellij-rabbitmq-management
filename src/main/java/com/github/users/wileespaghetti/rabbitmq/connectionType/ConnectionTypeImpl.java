@@ -1,5 +1,6 @@
 package com.github.users.wileespaghetti.rabbitmq.connectionType;
 
+import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.text.StringUtil;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,5 +25,14 @@ public class ConnectionTypeImpl implements  ConnectionType {
 
     public String getName() {
         return this.myName;
+    }
+
+    public boolean equalConfiguration(ConnectionTypeImpl comparison) {
+        if (!Comparing.equal(StringUtil.nullize(this.myName), StringUtil.nullize(comparison.myName))) {
+            return false;
+        } else {
+            // TODO Compare actual configuration values
+            return false;
+        }
     }
 }

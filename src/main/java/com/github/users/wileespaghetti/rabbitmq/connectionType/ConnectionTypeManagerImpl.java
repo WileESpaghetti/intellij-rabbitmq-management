@@ -39,6 +39,17 @@ public class ConnectionTypeManagerImpl extends ConnectionTypeManager {
         return this.myConnectionTypes.get(StringUtil.notNullize(id));
     }
 
+    @Override
+    public void resetToPredefined(@NotNull ConnectionType connectionType) {
+        // FIXME ConnectionTypes can not be currently edited so this is a noop
+    }
+
+    @Override
+    public boolean isInPredefinedState(@NotNull ConnectionType connectionType) {
+        ConnectionTypeImpl predefinedConnectionType = this.myPredefinedConnectionTypes.get(connectionType.getId());
+        return predefinedConnectionType == null || ((ConnectionTypeImpl) connectionType).equalConfiguration(predefinedConnectionType);
+    }
+
     @NotNull
     @Override
     public ConnectionType createConnectionType(String id, String name) {
@@ -49,6 +60,7 @@ public class ConnectionTypeManagerImpl extends ConnectionTypeManager {
 
         return new ConnectionTypeImpl(newId, name);
     }
+
 
     @Override
     public void updateConnectionType(@NotNull ConnectionType connectionType) {

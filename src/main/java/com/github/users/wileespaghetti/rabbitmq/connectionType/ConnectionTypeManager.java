@@ -15,6 +15,10 @@ public abstract class ConnectionTypeManager {
 
     public abstract ConnectionType getConnectionType(String id);
 
+    public abstract void resetToPredefined(@NotNull ConnectionType connectionType);
+
+    public abstract boolean isInPredefinedState(@NotNull ConnectionType connectionType);
+
     @NotNull
     public abstract ConnectionType createConnectionType(String id, String name);
 
