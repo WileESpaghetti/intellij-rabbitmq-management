@@ -16,6 +16,8 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="RabbitMQ" anchor="bottom" icon="RabbitmqIcons.ToolWindowRabbitmq"
                     factoryClass="com.github.users.wileespaghetti.rabbitmq.RabbitmqToolWindowFactory" />
+        <applicationService serviceInterface="com.github.users.wileespaghetti.rabbitmq.connectionType.ConnectionTypeManager"
+                            serviceImplementation="com.github.users.wileespaghetti.rabbitmq.connectionType.ConnectionTypeManagerImpl"/>
     </extensions>
 
     <actions>
