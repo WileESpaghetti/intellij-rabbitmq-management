@@ -4,6 +4,8 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.util.JDOMUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.EventDispatcher;
 import com.intellij.util.containers.ContainerUtil;
@@ -11,6 +13,7 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.net.URL;
 import java.util.*;
 
 @State(
@@ -18,14 +21,44 @@ import java.util.*;
         storages = {@Storage("connectionTypes.xml")}
 )
 public class ConnectionTypeManagerImpl extends ConnectionTypeManager implements PersistentStateComponent<Element> {
+    private static final Logger LOG = Logger.getInstance(ConnectionTypeManagerImpl.class);
+    public static final String URL_CONNECTION_TYPES_LOCATION = "resources/connection-types.xml";
     private final EventDispatcher<ConnectionTypeListener> myDispatcher;
-    private final Map<String, ConnectionType> myConnectionTypes;
+    private final Map<String, ConnectionTypeImpl> myConnectionTypes;
     private final Map<String, ConnectionTypeImpl> myPredefinedConnectionTypes;
 
     public ConnectionTypeManagerImpl() {
+        this(getPredefinedLocation());
+    }
+
+    private ConnectionTypeManagerImpl(@Nullable URL var1) {
         this.myConnectionTypes = ContainerUtil.newLinkedHashMap();
         this.myPredefinedConnectionTypes = ContainerUtil.newLinkedHashMap();
         this.myDispatcher = EventDispatcher.create(ConnectionTypeListener.class);
+
+        try {
+            if (var1 != null) {
+                this.loadLatest(JDOMUtil.load(var1), false, true);
+            }
+        } catch (Exception e) {
+            LOG.warn(e);
+        }
+
+        Iterator<ConnectionTypeImpl> connectionTypes = this.myConnectionTypes.values().iterator();
+
+        while(connectionTypes.hasNext()) {
+            ConnectionTypeImpl connectionType = connectionTypes.next();
+            if (connectionType.isPredefined()) {
+                ConnectionTypeImpl predefinedConnectionType = new ConnectionTypeImpl(connectionType.getId(), true);
+                predefinedConnectionType.loadState(connectionType.getState(null), false, true);
+                this.myPredefinedConnectionTypes.put(predefinedConnectionType.getId(), predefinedConnectionType);
+            }
+        }
+    }
+
+    @Nullable
+    private static URL getPredefinedLocation() {
+        return ConnectionTypeManagerImpl.class.getClassLoader().getResource(URL_CONNECTION_TYPES_LOCATION);
     }
 
     @NotNull
@@ -98,7 +131,7 @@ public class ConnectionTypeManagerImpl extends ConnectionTypeManager implements 
     @Override
     public Element getState() {
         Element localConnectionTypes = new Element("LocalConnectionTypeManager");
-        Iterator<ConnectionType> connectionTypes = this.myConnectionTypes.values().iterator();
+        Iterator<ConnectionTypeImpl> connectionTypes = this.myConnectionTypes.values().iterator();
 
         while(connectionTypes.hasNext()) {
             ConnectionTypeImpl connectionTypeRoot = (ConnectionTypeImpl) connectionTypes.next();

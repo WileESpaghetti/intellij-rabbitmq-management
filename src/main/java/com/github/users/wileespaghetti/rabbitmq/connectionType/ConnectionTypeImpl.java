@@ -30,6 +30,11 @@ public class ConnectionTypeImpl implements  ConnectionType {
     public String getName() {
         return this.myName;
     }
+    
+    public boolean isPredefined() {
+        return this.myPredefined;
+    }
+
 
     public boolean equalConfiguration(ConnectionTypeImpl comparison) {
         if (!Comparing.equal(StringUtil.nullize(this.myName), StringUtil.nullize(comparison.myName))) {
