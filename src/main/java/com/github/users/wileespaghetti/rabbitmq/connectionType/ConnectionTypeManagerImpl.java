@@ -18,11 +18,11 @@ import java.util.*;
 
 @State(
         name = "LocalConnectionTypeManager",
-        storages = {@Storage("connectionTypes.xml")}
+        storages = {@Storage("connection-types.xml")}
 )
 public class ConnectionTypeManagerImpl extends ConnectionTypeManager implements PersistentStateComponent<Element> {
     private static final Logger LOG = Logger.getInstance(ConnectionTypeManagerImpl.class);
-    public static final String URL_CONNECTION_TYPES_LOCATION = "resources/connection-types.xml";
+    public static final String URL_CONNECTION_TYPES_LOCATION = "connection-types.xml";
     private final EventDispatcher<ConnectionTypeListener> myDispatcher;
     private final Map<String, ConnectionTypeImpl> myConnectionTypes;
     private final Map<String, ConnectionTypeImpl> myPredefinedConnectionTypes;
