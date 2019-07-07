@@ -1,16 +1,14 @@
 package com.github.users.wileespaghetti.rabbitmq.view.ui;
 
 import com.intellij.ui.ScrollPaneFactory;
-import com.intellij.ui.SeparatorWithText;
 import com.intellij.ui.components.GradientViewport;
 import com.intellij.ui.components.JBList;
-import com.intellij.util.containers.ContainerUtil;
+import com.intellij.ui.navigation.Place;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
 
 // com.intellij.database.view.ui.DataSourceSidePanel
 public class ConnectionsSidePanel {
@@ -18,17 +16,17 @@ public class ConnectionsSidePanel {
     private final JScrollPane myScroll;
     private final JList myList;
     private final DefaultListModel myModel = new DefaultListModel();
-    private final List<SeparatorWithText> mySeparators = ContainerUtil.newArrayList();
 
     public ConnectionsSidePanel() {
         this.myList = new JBList(this.myModel);
         this.myScroll = ScrollPaneFactory.createScrollPane(null, true);
 
-        this.myScroll.setViewport(new GradientViewport(new JLabel("Gradient Content"), JBUI.insetsTop(5), true));
+        this.myScroll.setViewport(new GradientViewport(myList, JBUI.insetsTop(5), true));
         this.myScroll.setCorner(ScrollPaneConstants.LOWER_RIGHT_CORNER, null);
         this.myScroll.setCorner(ScrollPaneConstants.LOWER_LEFT_CORNER, null);
         this.myScroll.setCorner(ScrollPaneConstants.UPPER_RIGHT_CORNER, null);
         this.myScroll.setCorner(ScrollPaneConstants.UPPER_LEFT_CORNER, null);
+        this.myList.setBorder(JBUI.Borders.emptyTop(5));
 
         this.myPanel.add(myScroll, BorderLayout.CENTER);
 
@@ -47,6 +45,11 @@ public class ConnectionsSidePanel {
 
     public void clear() {
         this.myModel.clear();
-        this.mySeparators.clear();
+    }
+
+    public void addPlace(Place itemPlace) {
+        this.myModel.addElement(itemPlace);
+        this.myPanel.revalidate();
+        this.myPanel.repaint();
     }
 }

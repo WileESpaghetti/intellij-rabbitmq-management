@@ -1,9 +1,11 @@
 package com.github.users.wileespaghetti.rabbitmq.view.ui;
 
+import com.github.users.wileespaghetti.rabbitmq.connectionType.ConnectionType;
 import com.github.users.wileespaghetti.rabbitmq.view.ui.RabbitmqConfigEditorImpl.ManagementApiSettings;
 import com.intellij.openapi.options.SettingsEditorConfigurable;
 import com.intellij.openapi.options.ex.SingleConfigurableEditor;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.containers.JBIterable;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,6 +25,9 @@ public class RabbitmqConnectionManagerDialog extends SingleConfigurableEditor {
     public static void showDialog(@NotNull Project project) {
         ManagementApiSettings apiSettings = new ManagementApiSettings();
 
+        JBIterable sidebarItems = JBIterable.empty();
+        sidebarItems.filter(ConnectionType.class).addAllTo(apiSettings.newConnectionTypes);
+
         RabbitmqConnectionManagerDialog dialog = new RabbitmqConnectionManagerDialog(project, apiSettings);
         dialog.show();
     }
@@ -30,7 +35,7 @@ public class RabbitmqConnectionManagerDialog extends SingleConfigurableEditor {
     // com.intellij.database.view.ui.DataSourceManagerDialog$MyConfigurable
     private static class MyConfigurable extends SettingsEditorConfigurable<ManagementApiSettings> {
         public MyConfigurable(@NotNull ManagementApiSettings settings) {
-            super(new RabbitmqConfigEditorImpl<>(), settings);
+            super(new RabbitmqConfigEditorImpl<>(settings), settings);
         }
 
         @Nls(capitalization = Nls.Capitalization.Title)
