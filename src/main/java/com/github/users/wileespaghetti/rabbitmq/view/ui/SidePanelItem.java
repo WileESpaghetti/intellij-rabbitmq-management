@@ -4,6 +4,7 @@ import com.intellij.ui.navigation.Place;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+// com.intellij.database.view.ui.SidePanelItem
 abstract class SidePanelItem {
     private static final String ELEMENT = "element";
     private final Object myRepresented;
@@ -37,6 +38,7 @@ abstract class SidePanelItem {
         return this.myRepresented;
     }
 
+    // com.intellij.database.view.ui.SidePanelItem$DriverItem
     static class ConnectionTypeItem extends SidePanelItem {
         ConnectionTypeItem(@NotNull Object represented) {
             super(represented);

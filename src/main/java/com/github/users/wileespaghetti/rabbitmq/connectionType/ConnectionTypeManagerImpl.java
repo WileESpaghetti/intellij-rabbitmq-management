@@ -16,6 +16,8 @@ import org.jetbrains.annotations.Nullable;
 import java.net.URL;
 import java.util.*;
 
+// com.intellij.database.dataSource.DatabaseDriverManagerImpl
+
 @State(
         name = "LocalConnectionTypeManager",
         storages = {@Storage("connection-types.xml")}

@@ -2,6 +2,7 @@ package com.github.users.wileespaghetti.rabbitmq.connectionType;
 
 import java.util.EventListener;
 
+// com.intellij.database.dataSource.DatabaseDriverListener
 public interface ConnectionTypeListener extends EventListener {
     void connectionTypeAdded(ConnectionType connectionType);
 
@@ -9,6 +10,7 @@ public interface ConnectionTypeListener extends EventListener {
 
     void connectionTypeUpdated(ConnectionType connectionType);
 
+    // com.intellij.database.dataSource.DatabaseDriverListener$Adapter
     public static class Adapter implements ConnectionTypeListener {
 
         @Override

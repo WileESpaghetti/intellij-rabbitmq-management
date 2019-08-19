@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 
+// com.intellij.database.dataSource.DatabaseDriverManager
 public abstract class ConnectionTypeManager {
     public static ConnectionTypeManager getInstance() {
         return ServiceManager.getService(ConnectionTypeManager.class);
