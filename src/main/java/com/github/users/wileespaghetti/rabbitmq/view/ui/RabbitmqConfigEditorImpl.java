@@ -3,12 +3,14 @@ package com.github.users.wileespaghetti.rabbitmq.view.ui;
 import com.github.users.wileespaghetti.rabbitmq.connectionType.ConnectionType;
 import com.github.users.wileespaghetti.rabbitmq.connectionType.ConnectionTypeManager;
 import com.github.users.wileespaghetti.rabbitmq.psi.ConnectionTypePresentation;
+import com.github.users.wileespaghetti.rabbitmq.view.ui.ConnectionsSidePanel.ComponentConfigurator;
 import com.github.users.wileespaghetti.rabbitmq.view.ui.SidePanelItem.ConnectionTypeItem;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.ui.OnePixelSplitter;
 import com.intellij.ui.ScrollPaneFactory;
+import com.intellij.ui.SimpleColoredComponent;
 import com.intellij.ui.components.panels.NonOpaquePanel;
 import com.intellij.ui.navigation.Place;
 import com.intellij.util.containers.ContainerUtil;
@@ -84,7 +86,7 @@ public class RabbitmqConfigEditorImpl<Settings> extends SettingsEditor<Settings>
     }
 
     private JComponent createLeftPanel() {
-        this.mySidePanel = new ConnectionsSidePanel();
+        this.mySidePanel = new ConnectionsSidePanel(new MyComponentConfigurator());
 
         JPanel leftPanel = new JPanel(new BorderLayout());
         leftPanel.add(this.mySidePanel.getComponent(), "Center");
@@ -171,6 +173,20 @@ public class RabbitmqConfigEditorImpl<Settings> extends SettingsEditor<Settings>
         ManagementApiSettings() {
             super();
             this.newConnectionTypes = ContainerUtil.newArrayList();
+        }
+    }
+
+    //////////\\\\\\\\\\
+
+    class MyComponentConfigurator implements ComponentConfigurator {
+        public void configure(@NotNull SimpleColoredComponent component, @NotNull Place itemPlace, boolean isSelected) {
+            SidePanelItem sidePanelItem = SidePanelItem.getItem(itemPlace);
+            if (sidePanelItem != null) {
+                String connectionTypeName = sidePanelItem.getName();
+                if (connectionTypeName != null) {
+                    component.append(connectionTypeName);
+                }
+            }
         }
     }
 }
