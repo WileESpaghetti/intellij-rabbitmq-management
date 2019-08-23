@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
+// com.intellij.database.dataSource.DatabaseDriverImpl
 public class ConnectionTypeImpl implements  ConnectionType {
     private final String myId;
     private String myName;

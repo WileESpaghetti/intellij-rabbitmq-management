@@ -16,13 +16,15 @@ import org.jetbrains.annotations.Nullable;
 import java.net.URL;
 import java.util.*;
 
+// com.intellij.database.dataSource.DatabaseDriverManagerImpl
+
 @State(
         name = "LocalConnectionTypeManager",
-        storages = {@Storage("connectionTypes.xml")}
+        storages = {@Storage("connection-types.xml")}
 )
 public class ConnectionTypeManagerImpl extends ConnectionTypeManager implements PersistentStateComponent<Element> {
     private static final Logger LOG = Logger.getInstance(ConnectionTypeManagerImpl.class);
-    public static final String URL_CONNECTION_TYPES_LOCATION = "resources/connection-types.xml";
+    public static final String URL_CONNECTION_TYPES_LOCATION = "connection-types.xml";
     private final EventDispatcher<ConnectionTypeListener> myDispatcher;
     private final Map<String, ConnectionTypeImpl> myConnectionTypes;
     private final Map<String, ConnectionTypeImpl> myPredefinedConnectionTypes;
@@ -152,7 +154,7 @@ public class ConnectionTypeManagerImpl extends ConnectionTypeManager implements 
         while(connectionTypes.hasNext()) {
             Element connectionTypeNode = connectionTypes.next();
             String id = getConnectionTypeId(connectionTypeNode);
-            ConnectionTypeImpl connectionType = id == null ? null : this.getOrCreateDriver(id, isFixed, true);
+            ConnectionTypeImpl connectionType = id == null ? null : this.getOrCreateConnectionType(id, isFixed, true);
             if (connectionType != null) {
                 connectionType.loadState(connectionTypeNode, isPredefined, true);
             }
@@ -166,7 +168,7 @@ public class ConnectionTypeManagerImpl extends ConnectionTypeManager implements 
     }
 
     @Nullable
-    private ConnectionTypeImpl getOrCreateDriver(@NotNull String id, boolean isPredefined, boolean isFixed) {
+    private ConnectionTypeImpl getOrCreateConnectionType(@NotNull String id, boolean isPredefined, boolean isFixed) {
         ConnectionTypeImpl connectiontype = (ConnectionTypeImpl) this.myConnectionTypes.get(id);
         if (connectiontype == null && isFixed) {
             connectiontype = this.addConnectionType(new ConnectionTypeImpl(id, isPredefined));

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<connection-types>
+    <connection-type id="managementApiEndpoint" name="Management API Endpoint"></connection-type>
+</connection-types>
