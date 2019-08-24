@@ -20,8 +20,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 // com.intellij.database.view.ui.DataSourceSidePanel
 public class ConnectionsSidePanel {
@@ -197,6 +197,16 @@ public class ConnectionsSidePanel {
             return this.myItemComponent;
         }
     }
+
+    public void select(Place place) {
+        this.myList.setSelectedValue(place, true);
+        int selectedIndex = this.myList.getSelectedIndex();
+        if (selectedIndex >= 0) {
+            int visibleRowCount = this.myList.getVisibleRowCount();
+            this.myList.scrollRectToVisible(this.myList.getCellBounds(Math.max(0, selectedIndex - visibleRowCount / 2), selectedIndex));
+        }
+    }
+
 
     //////////\\\\\\\\\\
 
