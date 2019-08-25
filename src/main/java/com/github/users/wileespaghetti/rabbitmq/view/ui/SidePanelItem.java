@@ -2,6 +2,7 @@ package com.github.users.wileespaghetti.rabbitmq.view.ui;
 
 import com.github.users.wileespaghetti.rabbitmq.connectionType.AbstractRabbitmqConfigurable;
 import com.github.users.wileespaghetti.rabbitmq.connectionType.ConnectionType;
+import com.github.users.wileespaghetti.rabbitmq.connectionType.ConnectionTypeImpl;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.ui.navigation.Place;
 import org.jetbrains.annotations.NotNull;
@@ -16,9 +17,11 @@ abstract class SidePanelItem<MyConfigurable extends Configurable> {
     private Place myPlace;
     private MyConfigurable myConfigurable;
     private JComponent myComponent;
+    protected RabbitmqConfigEditorImpl myEditor;
 
-    SidePanelItem(@NotNull Object represented) {
+    SidePanelItem(@NotNull RabbitmqConfigEditorImpl editor, @NotNull Object represented) {
         super();
+        this.myEditor = editor;
         this.myRepresented = represented;
     }
 
@@ -94,14 +97,14 @@ abstract class SidePanelItem<MyConfigurable extends Configurable> {
 
     // com.intellij.database.view.ui.SidePanelItem$DriverItem
     static class ConnectionTypeItem extends SidePanelItem<ConnectionTypeConfigurable> {
-        ConnectionTypeItem(@NotNull Object represented) {
-            super(represented);
+        ConnectionTypeItem(@NotNull RabbitmqConfigEditorImpl editor, @NotNull ConnectionType represented) {
+            super(editor, represented);
         }
 
         @NotNull
         @Override
         public ConnectionTypeConfigurable createConfigurableImpl() {
-            return new ConnectionTypeConfigurable();
+            return new ConnectionTypeConfigurable((ConnectionTypeImpl) this.getObject(), this.myEditor);
         }
 
         @Override

@@ -10,6 +10,7 @@ import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.util.ActionCallback;
+import com.intellij.openapi.util.Key;
 import com.intellij.ui.OnePixelSplitter;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.SimpleColoredComponent;
@@ -31,7 +32,7 @@ import java.util.List;
 import java.util.*;
 
 // com.intellij.database.view.ui.DatabaseConfigEditorImpl
-public class RabbitmqConfigEditorImpl<Settings> extends SettingsEditor<Settings> {
+public class RabbitmqConfigEditorImpl<Settings> extends SettingsEditor<Settings> implements RabbitmqConfigEditor {
     private JPanel myRootPanel;
     private JPanel myRightPanel;
     private ConnectionsSidePanel mySidePanel;
@@ -158,7 +159,7 @@ public class RabbitmqConfigEditorImpl<Settings> extends SettingsEditor<Settings>
     private ConnectionTypeItem createItem(@NotNull ConnectionType connectionType) {
         ConnectionTypeItem item = (ConnectionTypeItem)this.mySidePanelItems.get(connectionType);
         if (item == null) {
-            item = new ConnectionTypeItem(connectionType);
+            item = new ConnectionTypeItem(this, connectionType);
         }
 
         return (ConnectionTypeItem) this.createItem(item);
@@ -256,6 +257,17 @@ public class RabbitmqConfigEditorImpl<Settings> extends SettingsEditor<Settings>
         }
 
         return item;
+    }
+
+    @Nullable
+    @Override
+    public <T> T getUserData(@NotNull Key<T> key) {
+        return null;
+    }
+
+    @Override
+    public <T> void putUserData(@NotNull Key<T> key, @Nullable T value) {
+
     }
 
     //////////\\\\\\\\\\
