@@ -100,7 +100,7 @@ public class ConnectionTypeManagerImpl extends ConnectionTypeManager implements 
             newId = null;
         }
 
-        return new ConnectionTypeImpl(newId, name);
+        return new ConnectionTypeImpl(newId, id, name);
     }
 
 

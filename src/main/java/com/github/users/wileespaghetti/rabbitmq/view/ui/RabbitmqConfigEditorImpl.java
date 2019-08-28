@@ -10,7 +10,9 @@ import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.util.ActionCallback;
+import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.Key;
+import com.intellij.openapi.util.Ref;
 import com.intellij.ui.OnePixelSplitter;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.SimpleColoredComponent;
@@ -270,6 +272,68 @@ public class RabbitmqConfigEditorImpl<Settings> extends SettingsEditor<Settings>
 
     }
 
+    @Override
+    public boolean isObjectNameUnique(@Nullable Object target, String name) {
+        Kind targetKind = Kind.kindOf(target);
+        if (targetKind == Kind.OTHER) {
+            return true;
+        } else {
+            Iterator sidePanelItems = this.mySidePanelItems.values().iterator();
+
+            SidePanelItem sidePanelItem;
+            Object sidePanelItemRepresented;
+            do {
+                    do {
+                        do {
+                            if (!sidePanelItems.hasNext()) {
+                                return true;
+                            }
+
+                            sidePanelItem = (SidePanelItem)sidePanelItems.next();
+                            sidePanelItemRepresented = sidePanelItem.getObject();
+                        } while(Kind.kindOf(sidePanelItemRepresented) != targetKind);
+                    } while(sidePanelItemRepresented == target);
+            } while(!Comparing.equal(sidePanelItem.getName(), name));
+
+            return false;
+        }
+    }
+
+    @Override
+    public void showErrorNotification(@NotNull Configurable configurable, @NotNull Object problemId, @Nullable Exception e) {
+
+    }
+
+    @Override
+    public void showErrorNotification(@NotNull Configurable configurable, @NotNull Object problemId, @Nullable String message, @Nullable String description, @NotNull Object... problemOrigin) {
+
+    }
+
+    @Nullable
+    public JComponent createResetAction(@Nullable Configurable configurable) {
+        Ref itemRef = Ref.create();
+        ContainerUtil.process(this.mySidePanelItems.values(), (item) -> {
+            if (item.getConfigurable() == configurable) {
+                itemRef.set(item);
+                return false;
+            } else {
+                return true;
+            }
+        });
+        SidePanelItem item = (SidePanelItem)itemRef.get();
+        if (item == null) {
+            return null;
+        } else {
+            JPanel resetPanel = new JPanel(new BorderLayout());
+            resetPanel.add(item.getResetComponent(), BorderLayout.EAST);
+            Dimension resetPreferredSize = resetPanel.getPreferredSize();
+            Dimension resetMinimumSize = new Dimension((int)resetPreferredSize.getWidth(), (int)resetPreferredSize.getHeight());
+            resetPanel.setMinimumSize(resetMinimumSize);
+            resetPanel.setPreferredSize(resetMinimumSize);
+            return resetPanel;
+        }
+    }
+
     //////////\\\\\\\\\\
 
     // com.intellij.database.view.ui.DatabaseConfigEditorImpl$DataSourceSettings
@@ -284,6 +348,7 @@ public class RabbitmqConfigEditorImpl<Settings> extends SettingsEditor<Settings>
 
     //////////\\\\\\\\\\
 
+    // com.intellij.database.view.ui.DatabaseConfigEditorImpl$MyComponentConfigurator
     class MyComponentConfigurator implements ComponentConfigurator {
         public void configure(@NotNull SimpleColoredComponent component, @NotNull Place itemPlace, boolean isSelected) {
             SidePanelItem sidePanelItem = SidePanelItem.getItem(itemPlace);
@@ -293,6 +358,21 @@ public class RabbitmqConfigEditorImpl<Settings> extends SettingsEditor<Settings>
                     component.append(connectionTypeName);
                 }
             }
+        }
+    }
+
+    //////////\\\\\\\\\\
+
+    enum Kind {
+        CONNECTION_DETAILS,
+        CONNECTION_TYPE,
+        OTHER;
+
+        private Kind() {
+        }
+
+        static Kind kindOf(Object target) {
+            return target instanceof ConnectionType ? CONNECTION_TYPE : OTHER;
         }
     }
 }

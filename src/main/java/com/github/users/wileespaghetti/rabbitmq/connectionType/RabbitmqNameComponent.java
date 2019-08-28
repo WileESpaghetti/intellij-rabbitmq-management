@@ -1,6 +1,10 @@
 package com.github.users.wileespaghetti.rabbitmq.connectionType;
 
 import com.github.users.wileespaghetti.rabbitmq.view.ui.RabbitmqConfigEditor;
+import com.intellij.openapi.util.Comparing;
+import com.intellij.openapi.util.Computable;
+import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.EditorTextField;
 import com.intellij.ui.ExpandableEditorSupport;
 import com.intellij.ui.components.JBLabel;
@@ -10,9 +14,11 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
 import java.awt.*;
 
 // com.intellij.database.dataSource.DatabaseNameComponent
@@ -25,11 +31,27 @@ public class RabbitmqNameComponent {
     private final AbstractRabbitmqConfigurable myConfigurable;
     private final RabbitmqConfigEditor myController;
 
-    public RabbitmqNameComponent(@NotNull AbstractRabbitmqConfigurable configurable, @NotNull RabbitmqConfigEditor controller, boolean var3) {
+    public RabbitmqNameComponent(@NotNull AbstractRabbitmqConfigurable configurable, @NotNull RabbitmqConfigEditor controller, boolean isColorable) {
         this.myConfigurable = configurable;
         this.myController = controller;
         this.$$$setupUI$$$();
+        this.myName.getDocument().addDocumentListener(new DocumentAdapter() {
+            protected void textChanged(@NotNull DocumentEvent e) {
+                String name = getNameValue();
+                if (!myController.isObjectNameUnique(myConfigurable.getTarget(), name)) {
+                    myController.showErrorNotification(myConfigurable, NON_UNIQUE_NAME, "Name is Not Unique", String.format("Object with the name '%s' already exists. Please choose another name.", name));
+                } else {
+                    myController.showErrorNotification(myConfigurable, NON_UNIQUE_NAME, null);
+                }
+
+            }
+        });
+
         this.myPanel.setBorder(new EmptyBorder(UIUtil.PANEL_REGULAR_INSETS));
+        JComponent resetAction = this.myController.createResetAction(this.myConfigurable);
+        if (resetAction != null) {
+            this.myResetPanel.add(resetAction);
+        }
 
         new ExpandableEditorSupport(this.myComment);
         this.myComment.setBackground(UIUtil.getPanelBackground());
@@ -40,14 +62,63 @@ public class RabbitmqNameComponent {
     public JComponent getComponent() {
         return this.myPanel;
     }
+
+    public void reset(@NotNull ConnectionTypeImpl target, @Nullable Computable computable) {
+        this.reset(target.getName(), target.getComment(), computable);
+    }
+
+    private void reset(String name, String comment, @Nullable Computable computable) {
+        String targetName = !StringUtil.isEmptyOrSpaces(name) ? name : (computable != null ? (String)computable.compute() : null);
+        this.setNameValue(targetName);
+        this.setCommentValue(comment);
+    }
+
+    private String getCommentValue() {
+        return StringUtil.nullize(this.myComment.getText(), true);
+    }
+
+    @NotNull
+    public String getNameValue() {
+        System.out.println("name value: " + this.myName.getText());
+        return this.myName.getText().trim();
+    }
+
+    public void setGeneratedName(String name) {
+        if (!Comparing.equal(name, this.myName.getText())) {
+            this.myName.setText(name);
+        }
+    }
+
+    public JComponent getPreferredFocusedComponent() {
+        return this.myName;
+    }
+
+    public void setNameValue(@Nullable String name) {
+        this.myName.setText(StringUtil.notNullize(name));
+    }
+
+    private void setCommentValue(@Nullable String comment) {
+        String filteredComment = StringUtil.notNullize(comment);
+        this.myComment.setText(filteredComment);
+        this.myComment.setToolTipText(StringUtil.shortenTextWithEllipsis(filteredComment, 2000, 0, true));
+    }
+
+    AbstractRabbitmqConfigurable getConfigurable() {
+        return this.myConfigurable;
+    }
+
+    ExtendableTextField getNameField() {
+        return this.myName;
+    }
+
     private void $$$setupUI$$$() {
         JPanel contentPane = new JPanel();
         this.myPanel = contentPane;
         contentPane.setLayout(new GridLayoutManager(3, 5, new Insets(0, 0, 0, 0), -1, -1, false, false));
         JBLabel nameLabel = new JBLabel();
-        nameLabel.setHorizontalTextPosition(11);
+        nameLabel.setHorizontalTextPosition(SwingConstants.TRAILING);
         nameLabel.setText("Name:");
-        contentPane.add(nameLabel, new GridConstraints(0, 0, 1, 1, 0, 1, 0, 0, (Dimension)null, (Dimension)null, (Dimension)null));
+        contentPane.add(nameLabel, new GridConstraints(0, 0, 1, 1, 0, 1, 0, 0, null, null, (Dimension)null));
         Spacer spacer = new Spacer();
         contentPane.add(spacer, new GridConstraints(2, 0, 1, 1, 0, 2, 1, 6, (Dimension)null, (Dimension)null, (Dimension)null));
         JPanel resetPanel = new JPanel();

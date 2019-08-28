@@ -3,6 +3,7 @@ package com.github.users.wileespaghetti.rabbitmq.view.ui;
 import com.github.users.wileespaghetti.rabbitmq.connectionType.AbstractRabbitmqConfigurable;
 import com.github.users.wileespaghetti.rabbitmq.connectionType.ConnectionTypeImpl;
 import com.github.users.wileespaghetti.rabbitmq.connectionType.RabbitmqNameComponent;
+import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.ui.components.JBLabel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -12,20 +13,21 @@ import java.awt.*;
 
 // com.intellij.database.view.ui;DatabaseDriverConfigurable
 public class ConnectionTypeConfigurable extends AbstractRabbitmqConfigurable<ConnectionTypeImpl> {
-    private final ConnectionTypeImpl myTempConnectionType = new ConnectionTypeImpl("temp", true);
     private RabbitmqNameComponent myNameComponent;
     private final ConnectionTypeImpl myConnectionType;
+    private final ConnectionTypeImpl myTempConnectionType;
 
     ConnectionTypeConfigurable(@NotNull ConnectionTypeImpl connectionType, @NotNull RabbitmqConfigEditor controller) {
         super(connectionType);
         this.setController(controller);
         this.myConnectionType = connectionType;
+        this.myTempConnectionType = connectionType.copy((String)null, true);
     }
 
-    @NotNull
-    public ConnectionTypeImpl getTempConnectionType() {
-        return new ConnectionTypeImpl("temp", "My Temp Connection Type");
-    }
+//    @NotNull
+//    public ConnectionTypeImpl getTempConnectionType() {
+//        return new ConnectionTypeImpl("temp", "My Temp Connection Type");
+//    }
 
     @NotNull
     @Override
@@ -44,6 +46,18 @@ public class ConnectionTypeConfigurable extends AbstractRabbitmqConfigurable<Con
 
     public void setController(@NotNull RabbitmqConfigEditor editor) {
         this.myController = editor;
+    }
+
+    public void resetFromTemp() {
+        ((SettingsEditor)this.myController).bulkUpdate(() -> {
+            this.reset(this.myTempConnectionType);
+        });
+    }
+
+    protected void reset(@NotNull ConnectionTypeImpl connectionType) {
+        if (this.myNameComponent != null) {
+            this.myNameComponent.reset(connectionType, null);
+        }
     }
 }
 
