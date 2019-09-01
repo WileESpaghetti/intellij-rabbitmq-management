@@ -1,25 +1,35 @@
 package com.github.users.wileespaghetti.rabbitmq.view.ui;
 
+import com.github.users.wileespaghetti.rabbitmq.connectionType.AbstractRabbitmqConfigurable;
 import com.github.users.wileespaghetti.rabbitmq.connectionType.ConnectionType;
 import com.github.users.wileespaghetti.rabbitmq.connectionType.ConnectionTypeManager;
+import com.github.users.wileespaghetti.rabbitmq.connectionType.LocalDataSourceManager;
 import com.github.users.wileespaghetti.rabbitmq.psi.ConnectionTypePresentation;
+import com.github.users.wileespaghetti.rabbitmq.psi.RmqElement;
+import com.github.users.wileespaghetti.rabbitmq.util.RmqUiUtil;
 import com.github.users.wileespaghetti.rabbitmq.view.ui.ConnectionsSidePanel.ComponentConfigurator;
 import com.github.users.wileespaghetti.rabbitmq.view.ui.SidePanelItem.ConnectionTypeItem;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
-import com.intellij.openapi.util.ActionCallback;
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.Key;
-import com.intellij.openapi.util.Ref;
+import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.ui.popup.ListPopup;
+import com.intellij.openapi.util.*;
 import com.intellij.ui.OnePixelSplitter;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.SimpleColoredComponent;
 import com.intellij.ui.components.panels.NonOpaquePanel;
 import com.intellij.ui.navigation.Place;
+import com.intellij.util.Function;
+import com.intellij.util.IconUtil;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.containers.ContainerUtil;
+import com.intellij.util.containers.JBIterable;
 import com.intellij.util.ui.JBUI.Borders;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.util.ui.update.UiNotifyConnector;
@@ -42,11 +52,14 @@ public class RabbitmqConfigEditorImpl<Settings> extends SettingsEditor<Settings>
     private static final Logger LOG = Logger.getInstance(RabbitmqConfigEditorImpl.class);
     private final Map<Object, SidePanelItem> mySidePanelItems;
     private SidePanelItem mySelectedItem;
+    private AddAction myAddAction;
+    private final List myRemovedObjects;
 
     RabbitmqConfigEditorImpl(@NotNull ManagementApiSettings settings) {
         super();
 
         this.mySidePanelItems = ContainerUtil.newIdentityHashMap();
+        this.myRemovedObjects = ContainerUtil.newArrayList();
 
         int connectionTypeCount = settings.newConnectionTypes.size();
         if (connectionTypeCount > 10) {
@@ -108,10 +121,27 @@ public class RabbitmqConfigEditorImpl<Settings> extends SettingsEditor<Settings>
                 }
             }
         });
+        this.myAddAction = new AddAction();
 
-        JPanel leftPanel = new JPanel(new BorderLayout());
-        leftPanel.add(this.mySidePanel.getComponent(), "Center");
+        JPanel leftPanel = new JPanel(new BorderLayout()); // var14
+        JPanel toolbar = new JPanel(new BorderLayout()); // var13
+        toolbar.add(createToolbarComponent(this.myAddAction), BorderLayout.CENTER);
+        leftPanel.add(toolbar, BorderLayout.NORTH);
+        leftPanel.add(this.mySidePanel.getComponent(), BorderLayout.CENTER);
         return leftPanel;
+    }
+
+    @NotNull
+    private JComponent createToolbarComponent(@NotNull AnAction... actions) {
+        DefaultActionGroup actionGroup = new DefaultActionGroup();
+        actionGroup.addAll(actions);
+        ActionToolbar var3 = ActionManager.getInstance().createActionToolbar("ProjectViewToolbar", actionGroup, true);
+        var3.setReservePlaceAutoPopupIcon(false);
+        var3.setTargetComponent(this.myRootPanel);
+        JComponent var4 = var3.getComponent();
+        var4.setBackground(UIUtil.SIDE_PANEL_BACKGROUND);
+
+        return var4;
     }
 
     @Override
@@ -333,6 +363,49 @@ public class RabbitmqConfigEditorImpl<Settings> extends SettingsEditor<Settings>
             return resetPanel;
         }
     }
+    @NotNull
+    public Getter getTempTargetOrTarget(@NotNull Object represented) {
+        Getter var10000 = () -> {
+            AbstractRabbitmqConfigurable var2 = this.getConfigurable(represented, false, AbstractRabbitmqConfigurable.class);
+            return var2 == null ? represented : var2.getTempTarget();
+        };
+        return var10000;
+    }
+
+    @Nullable
+    public AbstractRabbitmqConfigurable getConfigurable(@Nullable Object var1, boolean var2, @NotNull Class var3) {
+        JBIterable<SidePanelItem> var4 = JBIterable.from(this.mySidePanelItems.values());
+        Condition var5 = (var1x) -> {
+            return var1x == var1 || var1x instanceof RmqElement && ((RmqElement)var1x).getDelegate() == var1;
+        };
+        SidePanelItem var6 = var4.find((sidePanelItem) -> {
+            return var5.value(sidePanelItem.getObject());
+        });
+        if (var6 != null) {
+            if (var6.getConfigurable() == null && var2) {
+                var6.createConfigurable();
+            }
+
+            return (AbstractRabbitmqConfigurable)ObjectUtils.tryCast(var6.getConfigurable(), var3);
+        } else {
+            SidePanelItem var7 = var4.find((var3x) -> {
+                return !var5.value(var3x.getObject()) && var3.isInstance(var3x.getConfigurable()) && ((AbstractRabbitmqConfigurable)var3x.getConfigurable()).getTempTarget() == var1;
+            });
+            return var7 == null ? null : (AbstractRabbitmqConfigurable)ObjectUtils.tryCast(var7.getConfigurable(), var3);
+        }
+    }
+
+    private List getAddActions() {
+        ArrayList var1 = ContainerUtil.newArrayList();
+        LocalDataSourceManager localDataSourceManager = LocalDataSourceManager.getInstance(ProjectManager.getInstance().getOpenProjects()[0]/*;this.mySettings.facade.getProject()*/);
+        Function<ConnectionType, ConnectionType> var3 = (var1x) -> {
+            return this.myRemovedObjects.contains(var1x) ? null : (ConnectionType)this.getTempTargetOrTarget(var1x).get();
+        };
+        JBIterable<ConnectionType> var5 = JBIterable.from(ConnectionTypeManager.getInstance().getConnectionTypes()).filterMap(var3);
+        var1.addAll(localDataSourceManager.getCreateDataSourceActions(var5.toList(), (var2x) -> {
+        }));
+        return var1;
+    }
 
     //////////\\\\\\\\\\
 
@@ -375,4 +448,33 @@ public class RabbitmqConfigEditorImpl<Settings> extends SettingsEditor<Settings>
             return target instanceof ConnectionType ? CONNECTION_TYPE : OTHER;
         }
     }
+
+    //////////\\\\\\\\\\
+
+    class AddAction extends ActionGroup implements DumbAware, AlwaysVisibleActionGroup {
+        private AddAction() {
+            super("Add", null, IconUtil.getAddIcon());
+        }
+
+        public boolean isPopup() {
+            return true;
+        }
+
+        public boolean canBePerformed(@NotNull DataContext context) {
+            return true;
+        }
+
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            ListPopup var2 = JBPopupFactory.getInstance().createActionGroupPopup("", this, e.getDataContext(), JBPopupFactory.ActionSelectionAid.SPEEDSEARCH, false, (Runnable)null, 20);
+            RmqUiUtil.showPopup(var2, (Editor)null, e);
+        }
+
+        @NotNull
+        @Override
+        public AnAction[] getChildren(@Nullable AnActionEvent e) {
+            List var2 = RabbitmqConfigEditorImpl.this.getAddActions();
+            return (AnAction[])var2.toArray(AnAction.EMPTY_ARRAY);
+        }
+    }
+
 }

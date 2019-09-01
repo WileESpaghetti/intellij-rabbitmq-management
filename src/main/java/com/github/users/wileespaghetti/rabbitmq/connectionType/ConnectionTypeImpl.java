@@ -7,6 +7,7 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.*;
 import java.util.UUID;
 
 // com.intellij.database.dataSource.DatabaseDriverImpl
@@ -86,5 +87,17 @@ public class ConnectionTypeImpl implements  ConnectionType {
         newConnectionType.loadState(this.getState(null), false, false);
 
         return newConnectionType;
+    }
+
+    public LocalDataSource createDataSource(@Nullable String name) {
+        LocalDataSource dataSource = LocalDataSource.fromDriver(this, false);
+
+        dataSource.setName(StringUtil.notNullize(name));
+        return dataSource;
+    }
+
+    @Override
+    public Icon getIcon(int flags) {
+        return null;
     }
 }
