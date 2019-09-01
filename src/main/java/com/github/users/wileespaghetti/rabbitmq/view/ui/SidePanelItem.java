@@ -2,12 +2,16 @@ package com.github.users.wileespaghetti.rabbitmq.view.ui;
 
 import com.github.users.wileespaghetti.rabbitmq.connectionType.AbstractRabbitmqConfigurable;
 import com.github.users.wileespaghetti.rabbitmq.connectionType.ConnectionType;
+import com.github.users.wileespaghetti.rabbitmq.connectionType.ConnectionTypeImpl;
 import com.intellij.openapi.options.Configurable;
+import com.intellij.ui.components.labels.SwingActionLink;
 import com.intellij.ui.navigation.Place;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 // com.intellij.database.view.ui.SidePanelItem
 abstract class SidePanelItem<MyConfigurable extends Configurable> {
@@ -16,9 +20,13 @@ abstract class SidePanelItem<MyConfigurable extends Configurable> {
     private Place myPlace;
     private MyConfigurable myConfigurable;
     private JComponent myComponent;
+    protected RabbitmqConfigEditorImpl myEditor;
+    private JComponent myResetComponent;
+    private Boolean myModifiedCache;
 
-    SidePanelItem(@NotNull Object represented) {
+    SidePanelItem(@NotNull RabbitmqConfigEditorImpl editor, @NotNull Object represented) {
         super();
+        this.myEditor = editor;
         this.myRepresented = represented;
     }
 
@@ -80,9 +88,52 @@ abstract class SidePanelItem<MyConfigurable extends Configurable> {
             } else {
                 this.myConfigurable.reset();
             }
+            this.updateResetComponent();
         }
 
         return this.myConfigurable;
+    }
+
+    @NotNull
+    public JComponent getResetComponent() {
+        if (this.myResetComponent == null) {
+            this.myResetComponent = new SwingActionLink(new AbstractAction( "Reset") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                   reset();
+                }
+            });
+        }
+
+        return this.myResetComponent;
+    }
+
+    protected void reset() {
+        throw new NotImplementedException();
+    }
+
+    protected boolean isResetEnabled() {
+        return this.isModified();
+    }
+
+    public boolean isModified() {
+        return true;
+//        if (this.myConfigurable == null) {
+//            return false;
+//        } else {
+//            if (this.myModifiedCache == null) {
+//                this.myModifiedCache = this.myConfigurable.isModified();
+//            }
+//
+//            return this.myModifiedCache;
+//        }
+    }
+
+    public void updateResetComponent() {
+        if (this.myResetComponent != null) {
+            this.myResetComponent.setVisible(this.isResetEnabled());
+        }
+
     }
 
     @NotNull
@@ -94,14 +145,14 @@ abstract class SidePanelItem<MyConfigurable extends Configurable> {
 
     // com.intellij.database.view.ui.SidePanelItem$DriverItem
     static class ConnectionTypeItem extends SidePanelItem<ConnectionTypeConfigurable> {
-        ConnectionTypeItem(@NotNull Object represented) {
-            super(represented);
+        ConnectionTypeItem(@NotNull RabbitmqConfigEditorImpl editor, @NotNull ConnectionType represented) {
+            super(editor, represented);
         }
 
         @NotNull
         @Override
         public ConnectionTypeConfigurable createConfigurableImpl() {
-            return new ConnectionTypeConfigurable();
+            return new ConnectionTypeConfigurable((ConnectionTypeImpl) this.getObject(), this.myEditor);
         }
 
         @Override

@@ -12,19 +12,26 @@
     <!-- uncomment to enable plugin in all products
     <depends>com.intellij.modules.lang</depends>
     -->
+    <extensionPoints>
+        <extensionPoint qualifiedName="com.github.users.wileespaghetti.rabbitmq.dataSourceManager" interface="com.github.users.wileespaghetti.rabbitmq.psi.DataSourceManager" area="IDEA_PROJECT"/>
+    </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
+<!--    <extensions defaultExtensionNs="com.github.users.wileespaghetti.rabbitmq">-->
         <toolWindow id="RabbitMQ" anchor="bottom" icon="RabbitmqIcons.ToolWindowRabbitmq"
                     factoryClass="com.github.users.wileespaghetti.rabbitmq.RabbitmqToolWindowFactory" />
         <applicationService serviceInterface="com.github.users.wileespaghetti.rabbitmq.connectionType.ConnectionTypeManager"
                             serviceImplementation="com.github.users.wileespaghetti.rabbitmq.connectionType.ConnectionTypeManagerImpl"/>
+    </extensions>
+    <extensions defaultExtensionNs="com.github.users.wileespaghetti.rabbitmq">
+        <dataSourceManager implementation="com.github.users.wileespaghetti.rabbitmq.connectionType.LocalDataSourceManager" order="last"/>
     </extensions>
 
     <actions>
         <!-- Add your actions here -->
         <action id="Rabbitmq.OpenConfiguration"
                 class="com.github.users.wileespaghetti.rabbitmq.actions.testing.OpenRabbitmqConfigurationDialog"
-                text="RabbitMQ Configuration" description="Opens the RabbitMQ Configuration Dialog">
+                text="RabbitMQ Configuration" description="Opens the RabbitMQ configuration dialog">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </action>
     </actions>
